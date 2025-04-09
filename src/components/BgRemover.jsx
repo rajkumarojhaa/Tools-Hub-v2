@@ -22,32 +22,38 @@ const BgRemover = () => {
     setError("");
   };
 
+  //Picsart - Remove Background API
   const removeBackground = async () => {
     if (!selectedFile) {
       setError("Please select an image file.");
       return;
     }
-
+  
     setLoading(true);
     setRemovedBgImg("");
     setError("");
-
+  
     const formData = new FormData();
-    formData.append("file", selectedFile);
-
+    formData.append("image", selectedFile);
+    formData.append("bg_blur", "0");
+    formData.append("format", "PNG");
+  
     try {
       const response = await axios.request({
         method: "POST",
-        url: "https://remove-background18.p.rapidapi.com/public/remove-background",
+        url: "https://picsart-remove-background2.p.rapidapi.com/removebg",
         headers: {
-          "x-rapidapi-key": "8b2433d626msha7dee48a2972e2ep1f6e58jsn3405de35e2f0",
-          "x-rapidapi-host": "remove-background18.p.rapidapi.com",
-          accept: "application/json",
+          "x-rapidapi-key": "d7669af8f1mshe84c78539dc02d3p1cc6fdjsn4c0f9d6cdb30",
+          "x-rapidapi-host": "picsart-remove-background2.p.rapidapi.com",
+          Accept: "application/json",
         },
         data: formData,
       });
-
-      const outputImageUrl = response.data?.url;
+  
+      console.log("API Response:", response.data);
+  
+      const outputImageUrl = response.data?.data?.url;
+  
       if (outputImageUrl) {
         setRemovedBgImg(outputImageUrl);
       } else {
@@ -60,13 +66,13 @@ const BgRemover = () => {
       setLoading(false);
     }
   };
-
+  
   const handleDownload = async () => {
+    if (!removedBgImg) return;
     try {
       const res = await fetch(removedBgImg);
       const blob = await res.blob();
 
-      // Mobile fix using FileReader if "a.download" fails
       if (window.navigator.msSaveOrOpenBlob) {
         window.navigator.msSaveOrOpenBlob(blob, "bg-removed.png");
       } else {
@@ -96,6 +102,7 @@ const BgRemover = () => {
 
   const handleDrop = (e) => {
     e.preventDefault();
+    dropZoneRef.current.classList.remove("border-blue-500"); // remove highlight
     const file = e.dataTransfer.files[0];
     if (file) handleFile(file);
   };
@@ -125,7 +132,7 @@ const BgRemover = () => {
         <p className="text-sm text-gray-300">Tap to select or drag an image here</p>
       </div>
 
-      {/* Fallback choose button for mobile */}
+      {/* Choose Button */}
       <div className="text-center mb-4">
         <button
           onClick={() => fileInputRef.current?.click()}
