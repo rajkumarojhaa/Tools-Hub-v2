@@ -1,141 +1,165 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const API_KEY = '6131edcb4cmsh23ebb63bba81107p1b37d5jsn13862f0d1d3f';
+const API_HOST = 'temp-mail-api3.p.rapidapi.com';
 
 const TempMail = () => {
   const [email, setEmail] = useState('');
-  const [expiresAt, setExpiresAt] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [copySuccess, setCopySuccess] = useState(false);
-  const [error, setError] = useState('');
-
   const [messages, setMessages] = useState([]);
-  const [messageLoading, setMessageLoading] = useState(false);
-  const [messageError, setMessageError] = useState('');
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const createTempMail = async () => {
-    setLoading(true);
-    setError('');
-    setEmail('');
-    setExpiresAt('');
-    setMessages([]);
-    setMessageError('');
-
+  // Generate a random email
+  const generateEmail = async () => {
     try {
-      const response = await axios.request({
-        method: 'POST',
-        url: 'https://flash-temp-mail.p.rapidapi.com/mailbox/create',
-        params: {
-          free_domains: 'false',
-        },
+      const response = await axios.get('https://temp-mail-api3.p.rapidapi.com/email/random', {
         headers: {
-          'x-rapidapi-key': '6131edcb4cmsh23ebb63bba81107p1b37d5jsn13862f0d1d3f',
-          'x-rapidapi-host': 'flash-temp-mail.p.rapidapi.com',
-          'Content-Type': 'application/json',
-        },
-        data: {
-          not_required: 'not_required',
+          'x-rapidapi-key': API_KEY,
+          'x-rapidapi-host': API_HOST,
         },
       });
+      const generatedEmail = response.data.email;
+      setEmail(generatedEmail);
+      setMessages([]);
+      setSelectedMessage(null);
+    } catch (error) {
+      console.error('Error generating email:', error);
+    }
+  };
 
-      const { email_address, expires_at } = response.data;
-      setEmail(email_address);
-      setExpiresAt(new Date(expires_at * 1000).toLocaleString());
+  // Copy email to clipboard
+  const copyEmail = () => {
+    navigator.clipboard.writeText(email);
+    toast.success('Email copied to clipboard!');
+  };
 
-      // Automatically fetch messages after email is created
-      fetchMessages(email_address);
-    } catch (err) {
-      console.error('Error generating email:', err);
-      setError('Failed to create temporary email. Try again.');
+  // Fetch all messages for the email
+  const fetchMessages = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `https://temp-mail-api3.p.rapidapi.com/messages/${email}`,
+        {
+          headers: {
+            'x-rapidapi-key': API_KEY,
+            'x-rapidapi-host': API_HOST,
+          },
+        }
+      );
+      setMessages(response.data || []);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      toast.error('Failed to fetch messages.');
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchMessages = async (generatedEmail) => {
-    setMessageLoading(true);
-    setMessageError('');
-    setMessages([]);
-
+  // Fetch a specific message by ID
+  const fetchMessageById = async (messageId) => {
     try {
-      const response = await axios.request({
-        method: 'GET',
-        url: 'https://flash-temp-mail.p.rapidapi.com/mailbox/email',
-        params: { email_address: generatedEmail },
-        headers: {
-          'x-rapidapi-key': '6131edcb4cmsh23ebb63bba81107p1b37d5jsn13862f0d1d3f',
-          'x-rapidapi-host': 'flash-temp-mail.p.rapidapi.com',
-        },
-      });
-
-      setMessages(response.data || []);
+      const response = await axios.get(
+        `https://temp-mail-api3.p.rapidapi.com/message/${email}/${messageId}`,
+        {
+          headers: {
+            'x-rapidapi-key': API_KEY,
+            'x-rapidapi-host': API_HOST,
+          },
+        }
+      );
+      setSelectedMessage(response.data);
     } catch (error) {
-      console.error('Error fetching messages:', error);
-      setMessageError('Failed to fetch messages. Try again.');
-    } finally {
-      setMessageLoading(false);
+      console.error('Error fetching message by ID:', error);
     }
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(email);
-    setCopySuccess(true);
-    setTimeout(() => setCopySuccess(false), 1500);
-  };
-
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white rounded-xl shadow-lg mt-10 text-center">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Flash Temp Mail</h2>
+    <div className="p-6 max-w-4xl mx-auto text-white bg-[#111827] min-h-screen">
+      <h1 className="text-2xl font-bold mb-4">🕵️ Temp Mail Viewer</h1>
 
-      {error && <p className="text-red-600">{error}</p>}
+      <button
+        onClick={generateEmail}
+        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded mb-4"
+      >
+        Generate Random Email
+      </button>
 
       {email && (
-        <div className="mb-4 text-gray-700">
-          <p><strong>Email:</strong> {email}</p>
-          <p><strong>Expires At:</strong> {expiresAt}</p>
-        </div>
-      )}
-
-      <div className="flex justify-center gap-4 mt-4 flex-wrap">
-        <button
-          onClick={createTempMail}
-          disabled={loading}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
-        >
-          {loading ? 'Generating...' : email ? 'Generate New Email' : 'Generate Email'}
-        </button>
-
-        {email && (
+        <div className="mb-4">
+          <p className="text-lg font-semibold">
+            📩 Email: <span className="text-green-400">{email}</span>
+            <button
+              onClick={copyEmail}
+              className="ml-4 bg-yellow-500 hover:bg-yellow-600 px-2 py-1 rounded text-sm"
+            >
+              Copy
+            </button>
+          </p>
           <button
-            onClick={handleCopy}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+            onClick={fetchMessages}
+            className="mt-2 bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
           >
-            {copySuccess ? 'Copied!' : 'Copy Email'}
+            Fetch Messages
           </button>
-        )}
-      </div>
-
-      {email && (
-        <div className="mt-6 text-left">
-          <h3 className="text-xl font-semibold mb-2">Inbox</h3>
-          {messageLoading ? (
-            <p className="text-gray-600">Fetching messages...</p>
-          ) : messageError ? (
-            <p className="text-red-600">{messageError}</p>
-          ) : messages.length === 0 ? (
-            <p className="text-gray-600">No messages found yet.</p>
-          ) : (
-            <ul className="space-y-2">
-              {messages.map((msg, idx) => (
-                <li key={idx} className="border rounded p-3 bg-gray-100">
-                  <p><strong>From:</strong> {msg.from}</p>
-                  <p><strong>Subject:</strong> {msg.subject}</p>
-                  <p className="text-sm text-gray-700 mt-2">{msg.body_text || 'No preview available.'}</p>
-                </li>
-              ))}
-            </ul>
-          )}
         </div>
       )}
+
+      {/* Loading Spinner */}
+      {loading && (
+        <div className="text-center my-6">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-white mx-auto"></div>
+          <p className="mt-2">Fetching messages...</p>
+        </div>
+      )}
+
+      {!loading && messages.length === 0 && email && (
+        <div className="text-gray-400 mt-4">No messages found for this email.</div>
+      )}
+
+      {!loading && messages.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">📬 Inbox Messages:</h2>
+          <ul className="space-y-2">
+            {messages.map((msg) => (
+              <li key={msg.id} className="bg-gray-800 p-4 rounded">
+                <p><strong>From:</strong> {msg.from}</p>
+                <p><strong>Subject:</strong> {msg.subject}</p>
+                <button
+                  onClick={() => fetchMessageById(msg.id)}
+                  className="mt-2 bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded text-white"
+                >
+                  View Message
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {selectedMessage && (
+        <div className="bg-gray-900 p-6 rounded mt-4 text-white">
+          <h2 className="text-xl font-bold mb-2">📨 Full Message</h2>
+          <p><strong>From:</strong> {selectedMessage.sender_email}</p>
+          <p><strong>Subject:</strong> {selectedMessage.subject}</p>
+
+          <div className="bg-gray-800 p-4 mt-3 rounded">
+            <div
+              dangerouslySetInnerHTML={{
+                __html:
+                  selectedMessage.htmlBody ||
+                  selectedMessage.content ||
+                  '<p>No content</p>',
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Toast notifications */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };
