@@ -1,0 +1,85 @@
+/* src/styles/animations.css */
+
+/* Fade In & Out Animation */
+@keyframes fadeInOut {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    50% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+  }
+  
+  .animate-gradient {
+    animation: fadeInOut 1.5s ease-in-out infinite;
+  }
+  
+  /* Text Gradient Utilities */
+  .text-gradient-1,
+  .text-gradient-2,
+  .text-gradient-3,
+  .text-gradient-4 {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+  }
+  
+  .text-gradient-1 {
+    background-image: linear-gradient(to right, #ff7e5f, #feb47b);
+  }
+  
+  .text-gradient-2 {
+    background-image: linear-gradient(to right, #43e97b, #38f9d7);
+  }
+  
+  .text-gradient-3 {
+    background-image: linear-gradient(to right, #ff6bcb, #f8e71c);
+  }
+  
+  .text-gradient-4 {
+    background-image: linear-gradient(to right, #00c6ff, #0072ff);
+  }
+  
+  /* Animated Gradient for Logo */
+  @keyframes gradient-animation {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  .gradient-logo {
+    background-image: linear-gradient(270deg, #ff8a00, #e52e71, #9b23ea, #4a00e0);
+    background-size: 800% 800%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-animation 8s ease infinite;
+    line-height: 1.8;
+    padding: 6px 0;
+  }
+  
+  /* Hide Scrollbar But Allow Scrolling */
+  .hide-scrollbar {
+    overflow: auto;
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none;    /* Firefox */
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;            /* Chrome, Safari */
+  }
+  
