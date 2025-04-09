@@ -29,7 +29,7 @@ const TextToImageGenerator = () => {
         method: "POST",
         url: "https://ai-text-to-image-generator-flux-free-api.p.rapidapi.com/aaaaaaaaaaaaaaaaaiimagegenerator/fluximagegenerate/generateimage.php",
         headers: {
-          "x-rapidapi-key": "8b2433d626msha7dee48a2972e2ep1f6e58jsn3405de35e2f0",
+          "x-rapidapi-key": "6131edcb4cmsh23ebb63bba81107p1b37d5jsn13862f0d1d3f",
           "x-rapidapi-host": "ai-text-to-image-generator-flux-free-api.p.rapidapi.com",
           "Content-Type": "application/x-www-form-urlencoded",
           Accept: "image/jpeg",
