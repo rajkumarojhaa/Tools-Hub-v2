@@ -1,12 +1,42 @@
-# React + Vite
+🛠️ Tools Hub
+A collection of powerful and easy-to-use developer and productivity tools built with modern technologies. From image converters to AI-powered generators, Tools Hub makes everyday tasks simple and efficient—all in one place.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🚀 Features
+🔄 Image Converter
+Convert images between different formats (PNG, JPG, WEBP, etc.) with ease.
 
-Currently, two official plugins are available:
+🎨 Color Converter
+Convert between HEX, RGB, HSL formats with live preview.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+🤖 AI Background Remover
+Remove image backgrounds using artificial intelligence with just one click.
 
-## Expanding the ESLint configuration
+📝 Word Counter
+Instantly count words, characters, sentences, and more. Great for writers and editors.
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+✍️ Text Formatter
+Format your text with options like uppercase, lowercase, title case, and more.
+
+🧠 AI Text to Image Generator
+Generate stunning images from any text prompt using AI models.
+
+📷 QR Code Generator
+Create QR codes for URLs, emails, phone numbers, WiFi credentials, and more.
+
+📩 Temporary Mail Generator
+Create disposable email addresses to sign up for services without using your real email.
+
+🌐 Tech Stack
+Frontend: React.js, Tailwind CSS
+
+AI Tools: Integrated with AI APIs (e.g. background remover, text-to-image)
+
+QR & Email Tools: Uses public APIs for QR generation and temporary mail
+
+Deployment: Vercel / Netlify / Custom server (specify your method)
+
+## 🚀 Demo
+
+> [Live Demo](https://tools-hub-v2.vercel.app)  
+> _Feel free to try it out and share feedback!_
+
