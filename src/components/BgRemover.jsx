@@ -10,6 +10,13 @@ const BgRemover = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // List of fallback API keys
+  const API_KEYS = [
+    "d7669af8f1mshe84c78539dc02d3p1cc6fdjsn4c0f9d6cdb30",
+    "7ba2cdfa25msh23e9fe866328575p12d494jsn85cb70ff8ea3",
+    "6131edcb4cmsh23ebb63bba81107p1b37d5jsn13862f0d1d3f"
+  ];
+
   const handleFile = (file) => {
     if (!file.type.startsWith("image/")) {
       setError("Only image files are supported.");
@@ -22,51 +29,57 @@ const BgRemover = () => {
     setError("");
   };
 
-  //Picsart - Remove Background API
   const removeBackground = async () => {
     if (!selectedFile) {
       setError("Please select an image file.");
       return;
     }
-  
+
     setLoading(true);
     setRemovedBgImg("");
     setError("");
-  
+
     const formData = new FormData();
     formData.append("image", selectedFile);
     formData.append("bg_blur", "0");
     formData.append("format", "PNG");
-  
-    try {
-      const response = await axios.request({
-        method: "POST",
-        url: "https://picsart-remove-background2.p.rapidapi.com/removebg",
-        headers: {
-          "x-rapidapi-key": "d7669af8f1mshe84c78539dc02d3p1cc6fdjsn4c0f9d6cdb30",
-          "x-rapidapi-host": "picsart-remove-background2.p.rapidapi.com",
-          Accept: "application/json",
-        },
-        data: formData,
-      });
-  
-      console.log("API Response:", response.data);
-  
-      const outputImageUrl = response.data?.data?.url;
-  
-      if (outputImageUrl) {
-        setRemovedBgImg(outputImageUrl);
-      } else {
-        setError("Background removed, but no image URL returned.");
+
+    let success = false;
+
+    for (let i = 0; i < API_KEYS.length; i++) {
+      const apiKey = API_KEYS[i];
+      try {
+        const response = await axios.request({
+          method: "POST",
+          url: "https://picsart-remove-background2.p.rapidapi.com/removebg",
+          headers: {
+            "x-rapidapi-key": apiKey,
+            "x-rapidapi-host": "picsart-remove-background2.p.rapidapi.com",
+            Accept: "application/json",
+          },
+          data: formData,
+        });
+
+        const outputImageUrl = response.data?.data?.url;
+
+        if (outputImageUrl) {
+          setRemovedBgImg(outputImageUrl);
+          success = true;
+          break;
+        } else {
+          throw new Error("No image URL returned.");
+        }
+      } catch (err) {
+        console.warn(`API Key ${i + 1} failed:`, err.response?.data || err.message);
+        if (i === API_KEYS.length - 1) {
+          setError("All API keys failed. Please try again later.");
+        }
       }
-    } catch (err) {
-      console.error("Error:", err.response?.data || err.message);
-      setError("Failed to remove background. Please try again.");
-    } finally {
-      setLoading(false);
     }
+
+    setLoading(false);
   };
-  
+
   const handleDownload = async () => {
     if (!removedBgImg) return;
     try {
@@ -102,7 +115,7 @@ const BgRemover = () => {
 
   const handleDrop = (e) => {
     e.preventDefault();
-    dropZoneRef.current.classList.remove("border-blue-500"); // remove highlight
+    dropZoneRef.current.classList.remove("border-blue-500");
     const file = e.dataTransfer.files[0];
     if (file) handleFile(file);
   };
