@@ -7,10 +7,10 @@ import ReactModal from "react-modal";
 ReactModal.setAppElement("#root");
 
 const API_KEYS = [
-  "6131edcb4cmsh23ebb63bba81107p1b37d5jsn13862f0d1d3f",
-  "dbdce0c552mshfe1af789924d51dp1db0dajsnafb2fb9eea95",
-  "7ba2cdfa25msh23e9fe866328575p12d494jsn85cb70ff8ea3",
-  "d7669af8f1mshe84c78539dc02d3p1cc6fdjsn4c0f9d6cdb30",
+  import.meta.env.VITE_MAIL_API_KEY_1,
+  import.meta.env.VITE_MAIL_API_KEY_2,
+  import.meta.env.VITE_MAIL_API_KEY_3,
+  import.meta.env.VITE_MAIL_API_KEY_4,
 ];
 const API_HOST = "temp-mail-api3.p.rapidapi.com";
 
@@ -19,6 +19,12 @@ const TempMail = () => {
   const [messages, setMessages] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
+
+  const getHeaders = (apiKey) => ({
+    "x-rapidapi-key": apiKey,
+    "x-rapidapi-host": API_HOST,
+  });
 
   const callWithFallback = async (apiCall) => {
     for (const apiKey of API_KEYS) {
@@ -33,13 +39,11 @@ const TempMail = () => {
   };
 
   const generateEmail = async () => {
+    setGenerating(true);
     try {
       const response = await callWithFallback((apiKey) =>
         axios.get("https://temp-mail-api3.p.rapidapi.com/email/random", {
-          headers: {
-            "x-rapidapi-key": apiKey,
-            "x-rapidapi-host": API_HOST,
-          },
+          headers: getHeaders(apiKey),
         })
       );
       setEmail(response.data.email);
@@ -48,6 +52,8 @@ const TempMail = () => {
     } catch (error) {
       console.error("Error generating email:", error);
       toast.error("Failed to generate email. Try again later.");
+    } finally {
+      setGenerating(false); // Stop the loader
     }
   };
 
@@ -61,10 +67,7 @@ const TempMail = () => {
     try {
       const response = await callWithFallback((apiKey) =>
         axios.get(`https://temp-mail-api3.p.rapidapi.com/messages/${email}`, {
-          headers: {
-            "x-rapidapi-key": apiKey,
-            "x-rapidapi-host": API_HOST,
-          },
+          headers: getHeaders(apiKey),
         })
       );
       setMessages(response.data || []);
@@ -81,12 +84,7 @@ const TempMail = () => {
       const response = await callWithFallback((apiKey) =>
         axios.get(
           `https://temp-mail-api3.p.rapidapi.com/message/${email}/${messageId}`,
-          {
-            headers: {
-              "x-rapidapi-key": apiKey,
-              "x-rapidapi-host": API_HOST,
-            },
-          }
+          { headers: getHeaders(apiKey) }
         )
       );
       setSelectedMessage(response.data);
@@ -97,28 +95,52 @@ const TempMail = () => {
   };
 
   return (
-    <div className="min-h-screen mt-10 text-white px-4 py-8">
+    <div className=" mt-10 text-white px-4 py-8 ">
       <div className="max-w-5xl mx-auto space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">
-            🕵️ Temp Mail Viewer
-          </h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">🕵️ Temp Mail Viewer</h1>
           <p className="text-gray-300 text-sm md:text-base">
             Generate disposable emails and view inbox instantly
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button
-            onClick={generateEmail}
-            className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg transition-all text-sm md:text-base"
+        <button
+        onClick={generateEmail}
+        disabled={generating}
+        className={`${
+          generating ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+        } px-6 py-2 rounded-lg transition-all text-sm md:text-base flex items-center justify-center gap-2`}
+      >
+            {generating && (
+          <svg
+            className="animate-spin h-4 w-4 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
           >
-            Generate Email
-          </button>
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v8H4z"
+            ></path>
+          </svg>
+        )}
+        {generating ? "Generating..." : "Generate Email"}
+      </button>
+
 
           {email && (
-            <div className="bg-gray-800 px-4 py-2 rounded-lg flex flex-col sm:flex-row items-center gap-2">
-              <span className="text-green-400 text-sm break-all">{email}</span>
+            <div className="bg-gray-800 px-4 py-2 rounded-lg flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto break-words">
+              <span className="text-green-400 text-sm">{email}</span>
               <div className="flex gap-2 mt-1 sm:mt-0">
                 <button
                   onClick={copyEmail}
@@ -128,7 +150,8 @@ const TempMail = () => {
                 </button>
                 <button
                   onClick={fetchMessages}
-                  className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-sm"
+                  disabled={loading}
+                  className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-sm disabled:opacity-50"
                 >
                   Fetch Messages
                 </button>

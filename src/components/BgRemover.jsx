@@ -12,10 +12,11 @@ const BgRemover = () => {
 
   // List of fallback API keys
   const API_KEYS = [
-    "d7669af8f1mshe84c78539dc02d3p1cc6fdjsn4c0f9d6cdb30",
-    "7ba2cdfa25msh23e9fe866328575p12d494jsn85cb70ff8ea3",
-    "6131edcb4cmsh23ebb63bba81107p1b37d5jsn13862f0d1d3f"
+    import.meta.env.VITE_BG_API_KEY_1,
+    import.meta.env.VITE_BG_API_KEY_2,
+    import.meta.env.VITE_BG_API_KEY_3
   ];
+  
 
   const handleFile = (file) => {
     if (!file.type.startsWith("image/")) {

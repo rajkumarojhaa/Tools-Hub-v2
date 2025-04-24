@@ -29,13 +29,13 @@ const TextToImageGenerator = () => {
         method: "POST",
         url: "https://ai-text-to-image-generator-flux-free-api.p.rapidapi.com/aaaaaaaaaaaaaaaaaiimagegenerator/fluximagegenerate/generateimage.php",
         headers: {
-          "x-rapidapi-key": "6131edcb4cmsh23ebb63bba81107p1b37d5jsn13862f0d1d3f",
+          "x-rapidapi-key": process.env.VITE_TEXTTOIMAGE_KEY,
           "x-rapidapi-host": "ai-text-to-image-generator-flux-free-api.p.rapidapi.com",
           "Content-Type": "application/x-www-form-urlencoded",
           Accept: "image/jpeg",
         },
         data: encodedParams,
-        responseType: "blob", // 👈 Get raw image
+        responseType: "blob",
       });
 
       const blob = new Blob([response.data], { type: "image/jpeg" });
